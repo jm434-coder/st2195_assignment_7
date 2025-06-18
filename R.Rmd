@@ -20,7 +20,7 @@ library(rstudioapi)
 library(knitr)
 library(kableExtra)
 
-display.brewer.all()
+
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 ```
@@ -31,6 +31,13 @@ df <- read.csv("titanic.csv")
 names(df) <- tolower(names(df))
 ```
 
+```{r colors}
+display.brewer.all()
+
+gender_colors <- brewer.pal(4, "Set1")[3:4]
+ticket_colors <- brewer.pal(10, "Spectral")[8:10]
+survival_colors <- brewer.pal(3, "Set1")[1:2]
+```
 
 #1
 
@@ -39,7 +46,6 @@ Generate a series of bar charts to describe the gender, ticket class and surviva
 
 ############## GENDER ####################
 
-gender_colors <- brewer.pal(4, "Set1")[3:4]
 
 #option 1
 ggplot(df, aes(x = sex, fill = sex)) +
@@ -50,7 +56,7 @@ ggplot(df, aes(x = sex, fill = sex)) +
   scale_fill_manual(values = gender_colors) +
   labs(title = "Gender Distribution of the Passengers",
        x = "Gender",
-       y = "Count") +
+       y = "Number of Passengers") +
   theme(
       legend.position = "none",
       panel.grid.major = element_blank(), 
@@ -86,7 +92,6 @@ ggplot(df, aes(x = sex, fill = sex)) +
 
 ############## TICKET CLASS ####################
 
-ticket_colors <- brewer.pal(10, "Spectral")[8:10]
 
 ggplot(df, aes(x = factor(pclass, 
                           levels = c(1, 2, 3), 
@@ -99,7 +104,7 @@ ggplot(df, aes(x = factor(pclass,
   scale_fill_manual(values = ticket_colors) +
   labs(title = "Ticket Class Distribution of the Passengers",
        x = "Ticket Class",
-       y = "Count") +
+       y = "Number of Passengers") +
   theme(
       legend.position = "none",
       panel.grid.major = element_blank(), 
@@ -137,8 +142,6 @@ ggplot(df, aes(x = factor(pclass,
 
 ############## SURVIVAL ####################
 
-survival_colors <- brewer.pal(3, "Set1")[1:2]
-
 ggplot(df, aes(x = factor(survived, 
                           levels = c(0, 1),
                           labels = c("Death", "Survived")),
@@ -150,7 +153,7 @@ ggplot(df, aes(x = factor(survived,
   scale_fill_manual(values = survival_colors) +
   labs(title = "Survival Stutus Distribution of the Passengers",
        x = "Survival Status",
-       y = "Count") +
+       y = "Number of Passengers") +
   theme(
       legend.position = "none",
       panel.grid.major = element_blank(), 
@@ -198,7 +201,7 @@ ggplot(df, aes(x = age)) +
   geom_histogram(binwidth = 5, fill = brewer.pal(4, "YlOrRd")[3], color = "white") +
   labs(title = "Age Distribution of Passengers",
        x = "Age",
-       y = "Count") +
+       y = "Number of Passengers") +
   theme(
       legend.position = "none",
       panel.grid.major = element_blank(), 
@@ -263,7 +266,7 @@ ggplot(df, aes(x = fare)) +
   geom_histogram(binwidth = 10, fill = brewer.pal(4, "BuGn")[3], color = "white") +
   labs(title = "Passengers Travelers Fare Distribution",
        x = "Fare Price",
-       y = "Count") +
+       y = "Number of Passengers") +
   theme(
       legend.position = "none",
       panel.grid.major = element_blank(), 
@@ -367,6 +370,357 @@ ggplot(df, aes(x = factor(pclass,
 
 #5
 A series of stacked bar charts to show the how survival differs for different gender and ticket class
+```{r}
+############## proportion ####################
+ggplot(df %>% mutate(
+    pclass = factor(pclass, levels = c(1, 2, 3), labels = c("1st Class", "2nd Class", "3rd Class")),
+    sex = factor(sex, levels = c("female", "male")),
+    survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+  ), 
+  aes(x = sex, fill = survived)) +
+  geom_bar(position = "fill") + 
+  facet_wrap(~ pclass) +
+  scale_fill_manual(values = survival_colors) +
+  labs(
+    title = "Survival by Gender and Ticket Class",
+    x = "Sex",
+    y = "Proportion",
+    fill = "Survival Status"
+  ) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+############## count ####################
+ggplot(df %>% mutate(
+    pclass = factor(pclass, levels = c(1, 2, 3), labels = c("1st Class", "2nd Class", "3rd Class")),
+    sex = factor(sex, levels = c("female", "male")),
+    survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+  ), 
+  aes(x = sex, fill = survived)) +
+  geom_bar(position = "stack") + 
+  facet_wrap(~ pclass) +
+  scale_fill_manual(values = survival_colors) +
+  labs(
+    title = "Survival by Gender and Ticket Class",
+    x = "Sex",
+    y = "Number of Passangers",
+    fill = "Survival Status"
+  ) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+```
 
 
+
+#6
+A violin chart describing how survival related to age and gender
+```{r}
+
+############## legend gender ####################
+
+#op 1 legend
+ggplot(df %>% filter(!is.na(age)), 
+       aes(x = factor(survived, 
+                      levels = c(0, 1),
+                      labels = c("Death", "Survived")),
+           y = age,
+           fill = sex)) +
+  geom_violin(trim = FALSE, scale = "count") +
+  
+  labs(
+    title = "Age Distribution by Survival and Gender",
+    x = "Survival Status",
+    y = "Age",
+    fill = "Gender"
+  ) +
+  scale_fill_manual(values = gender_colors) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+#op 2 no legend, facet wrap
+ggplot(df %>% filter(!is.na(age)) %>%
+         mutate(
+           sex = factor(sex, levels = c("female", "male")),
+           survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+         ), 
+       aes(x = sex,
+           y = age,
+           fill = sex)) +
+  geom_violin(trim = FALSE, scale = "count") +
+  facet_wrap(~ survived) +
+  labs(
+    title = "Age Distribution by Survival and Gender",
+    x = "Gender",
+    y = "Age",
+    fill = "Gender"
+  ) +
+  scale_fill_manual(values = gender_colors) +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+#op 3 overlap
+ggplot(df %>% filter(!is.na(age)) %>%
+         mutate(
+           sex = factor(sex, levels = c("female", "male")),
+           survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+         ),
+       aes(x = survived, y = age, fill = sex)) +
+  geom_violin(trim = TRUE, scale = "count", position = "identity", alpha = 0.5) +
+  labs(
+    title = "Age Distribution by Survival and Gender",
+    x = "Survival Status",
+    y = "Age",
+    fill = "Gender"
+  ) +
+  scale_fill_manual(values = gender_colors) +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "white"),
+    axis.line = element_line(color = "black")
+  )
+
+
+############## legend survival ####################
+
+#op 1 legend
+ggplot(df %>% filter(!is.na(age)), 
+       aes(x = sex,
+           y = age,
+           fill = factor(survived, 
+                      levels = c(0, 1),
+                      labels = c("Death", "Survived")))) +
+  geom_violin(trim = FALSE, scale = "count") +
+  labs(
+    title = "Age Distribution by Survival and Gender",
+    x = "Gender",
+    y = "Age",
+    fill = "Survival Status"
+  ) +
+  scale_fill_manual(values = survival_colors) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+#op 2 no legend face wrap
+ggplot(df %>% filter(!is.na(age)) %>%
+         mutate(
+           sex = factor(sex, levels = c("female", "male")),
+           survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+         ), 
+       aes(x = survived,
+           y = age,
+           fill = survived)) +
+  geom_violin(trim = FALSE, scale = "count") +
+  facet_wrap(~ sex) +
+  labs(
+    title = "Age Distribution by Survival and Gender",
+    x = "Survival Status",
+    y = "Age",
+    fill = "Gender"
+  ) +
+  scale_fill_manual(values = survival_colors) +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+#op 3 overlap
+ggplot(df %>% filter(!is.na(age)) %>%
+         mutate(
+           sex = factor(sex, levels = c("female", "male")),
+           survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+         ),
+       aes(x = sex, y = age, fill = survived)) +
+  geom_violin(trim = TRUE, scale = "count", position = "identity", alpha = 0.5) +
+  labs(
+    title = "Age Distribution by Survival and Gender",
+    x = "Gender",
+    y = "Age",
+    fill = "Survival Status"
+  ) +
+  scale_fill_manual(values = survival_colors) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+  )
+
+```
+
+#7
+A violin chart describing the survival rate related to age and ticket class
+```{r}
+#op 1 x survived
+ggplot(df %>% filter(!is.na(age)) %>% 
+         mutate(
+                survived = factor(survived, 
+                                  levels = c(0, 1), 
+                                  labels = c("Died", "Survived")),
+                pclass = factor(pclass, 
+                                levels = c(1, 2, 3), 
+                                labels = c("1st Class", "2nd Class", "3rd Class"))),
+  aes(x = survived, y = age, fill = survived)) +
+  geom_violin(trim = TRUE, scale = "count") +
+  facet_wrap(~ pclass) +
+  scale_fill_manual(values = survival_colors) +
+  labs(
+    title = "Age Distribution by Survival and Ticket Class",
+    x = "Survival Status",
+    y = "Age",
+    fill = "Survival"
+  ) +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+  )
+
+#op 2 x class
+ggplot(df %>% filter(!is.na(age)) %>% 
+         mutate(
+                survived = factor(survived, 
+                                  levels = c(0, 1), 
+                                  labels = c("Died", "Survived")),
+                pclass = factor(pclass, 
+                                levels = c(1, 2, 3), 
+                                labels = c("1st Class", "2nd Class", "3rd Class"))),
+  aes(x = pclass, y = age, fill = pclass)) +
+  geom_violin(trim = TRUE, scale = "count") +
+  facet_wrap(~ survived) +
+  scale_fill_manual(values = ticket_colors) +
+  labs(
+    title = "Age Distribution by Survival and Ticket Class",
+    x = "Survival Status",
+    y = "Age",
+    fill = "Survival"
+  ) +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+  )
+
+
+#op 3 overlap, x class
+ggplot(df %>% filter(!is.na(age)) %>% 
+         mutate(
+                survived = factor(survived, 
+                                  levels = c(0, 1), 
+                                  labels = c("Died", "Survived")),
+                pclass = factor(pclass, 
+                                levels = c(1, 2, 3), 
+                                labels = c("1st Class", "2nd Class", "3rd Class"))),
+  aes(x = pclass, y = age, fill = survived)) +
+  geom_violin(trim = TRUE, scale = "count", position = "identity", alpha = 0.5) +
+  scale_fill_manual(values = survival_colors) +
+  labs(
+    title = "Age Distribution by Survival and Ticket Class",
+    x = "Ticket Class",
+    y = "Age",
+    fill = "Survival"
+  ) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+  )
+
+#op 4 overlap, x survival
+#unreadable but prettyyyy :)
+
+ggplot(df %>% filter(!is.na(age)) %>% 
+         mutate(
+                survived = factor(survived, 
+                                  levels = c(0, 1), 
+                                  labels = c("Died", "Survived")),
+                pclass = factor(pclass, 
+                                levels = c(1, 2, 3), 
+                                labels = c("1st Class", "2nd Class", "3rd Class"))),
+  aes(x = survived, y = age, fill = pclass)) +
+  geom_violin(trim = TRUE, scale = "count", position = "identity", alpha = 0.5) +
+  scale_fill_manual(values = ticket_colors) +
+  labs(
+    title = "Age Distribution by Survival and Ticket Class",
+    x = "Survival Status",
+    y = "Age",
+    fill = "Ticket Class"
+  ) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+  )
+
+```
+
+#From the graphs above, what kind of associations between the variables like age, 
+gender, ticket class and the survival do you observe?
+
+
+Overall there were more males and passengers in 3rd class
+Males died more than females
+
+Comparing ticket classes: majority of male died independently of ticket class, but the proportion of deaths increases 
+majority of female survived, but again the proportion of deaths increases as class is worse, reachinga around 50/50 in 3rd class
+
+For age, there is not a significant different between sexes or class
+But we can see that for both genders, the children survived more than died
+And across all ticket classes all younger children survived completely or more than those who died, and only in 3rd class does it not reach 20
+
+```{r}
+ggplot(df %>% filter(!is.na(age)) %>%
+  mutate(
+    survived_num = as.numeric(as.character(survived)), 
+    pclass_num = as.numeric(as.character(pclass)),
+    pclass = factor(pclass, levels = c(1, 2, 3), labels = c("1st", "2nd", "3rd")),
+    survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+  ), 
+  aes(x = age, y = pclass_num, color = survived)) +
+  geom_jitter(height = 0.1, width = 0, alpha = 0.6, size = 2) +
+  scale_y_continuous(breaks = c(1, 2, 3), labels = c("1st", "2nd", "3rd")) +
+  scale_fill_manual(values = survival_colors) +
+  labs(
+    title = "Survival by Age and Ticket Class",
+    x = "Age",
+    y = "Ticket Class",
+    color = "Survival Status"
+  ) +
+  theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+  )
+```
 
