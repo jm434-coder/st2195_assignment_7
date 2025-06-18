@@ -277,26 +277,7 @@ ggplot(df, aes(x = fare)) +
 
 ############## TABLE ####################
 
-fare_zero <- df %>%
-  filter(fare == 0) %>%
-  group_by(pclass, sex, age, survived) %>%
-  summarise(Count = n(), .groups = "drop") %>%
-  mutate(
-    pclass = factor(pclass, levels = c(1, 2, 3), labels = c("1st", "2nd", "3rd")),
-    survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
-  )
-
-
-fare_zero_total <- fare_zero %>%
-  summarise(pclass = "Total", sex = "", age = NA, survived = "", Count = sum(Count))
-fare_zero_combined <- bind_rows(fare_zero, fare_zero_total)
-
-
-fare_zero_combined %>%
-  kable(col.names = c("Ticket Class", "Sex", "Age", "Survival", "Number of Passengers"),
-        caption = "Passengers Who Paid £0 Fare, by Class, Sex, Age, and Survival (with Total)") %>%
-  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE) %>% 
-  fare_zero_table <- df %>%
+fare_zero_table <- df %>%
   filter(fare == 0) %>%
   group_by(pclass, sex, age, survived) %>%
   summarise(Count = n(), .groups = "drop") %>%
