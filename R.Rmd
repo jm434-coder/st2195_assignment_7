@@ -1,0 +1,372 @@
+---
+title: "R"
+output: html_document
+date: "2025-06-05"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message = FALSE, warning = FALSE,fig.width = 10,fig.height = 6)
+```
+
+#Packages
+```{r libraries}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(rstudioapi)
+library(knitr)
+library(kableExtra)
+
+display.brewer.all()
+
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+
+```{r files}
+df <- read.csv("titanic.csv")
+names(df) <- tolower(names(df))
+```
+
+
+#1
+
+Generate a series of bar charts to describe the gender, ticket class and survival of the passengers onboard
+```{r 1}
+
+############## GENDER ####################
+
+gender_colors <- brewer.pal(4, "Set1")[3:4]
+
+#option 1
+ggplot(df, aes(x = sex, fill = sex)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..),
+            vjust = -0.5,
+            color = gender_colors) +
+  scale_fill_manual(values = gender_colors) +
+  labs(title = "Gender Distribution of the Passengers",
+       x = "Gender",
+       y = "Count") +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+#simpler
+ggplot(df, aes(x = sex, fill = sex)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..),
+            vjust = -0.5,
+            color = gender_colors) +
+  scale_fill_manual(values = brewer.pal(4, "Set1")[3:4]) +
+  labs(title = "Gender Distribution of the Passengers") +
+  theme(
+      plot.title = element_text(hjust = 0.5),
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.line.x = element_blank(),
+      axis.title.x = element_blank()
+    )
+
+
+
+############## TICKET CLASS ####################
+
+ticket_colors <- brewer.pal(10, "Spectral")[8:10]
+
+ggplot(df, aes(x = factor(pclass, 
+                          levels = c(1, 2, 3), 
+                          labels = c("1st", "2nd", "3rd")), 
+       fill = factor(pclass))) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..),
+            vjust = -0.5,
+            color = ticket_colors) +
+  scale_fill_manual(values = ticket_colors) +
+  labs(title = "Ticket Class Distribution of the Passengers",
+       x = "Ticket Class",
+       y = "Count") +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+#simpler
+ggplot(df, aes(x = factor(pclass, 
+                          levels = c(1, 2, 3), 
+                          labels = c("1st", "2nd", "3rd")), 
+       fill = factor(pclass))) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..),
+            vjust = -0.5,
+            color = ticket_colors) +
+  scale_fill_manual(values = ticket_colors) +
+  labs(title = "Ticket Class Distribution of the Passengers") +
+  theme(
+      plot.title = element_text(hjust = 0.5),
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.line.x = element_blank(),
+      axis.title.x = element_blank()
+    )
+
+
+############## SURVIVAL ####################
+
+survival_colors <- brewer.pal(3, "Set1")[1:2]
+
+ggplot(df, aes(x = factor(survived, 
+                          levels = c(0, 1),
+                          labels = c("Death", "Survived")),
+               fill = factor(survived))) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..),
+            vjust = -0.5,
+            color = survival_colors) +
+  scale_fill_manual(values = survival_colors) +
+  labs(title = "Survival Stutus Distribution of the Passengers",
+       x = "Survival Status",
+       y = "Count") +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+#simpler
+ggplot(df, aes(x = factor(survived, 
+                          levels = c(0, 1),
+                          labels = c("Death", "Survived")),
+               fill = factor(survived))) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..),
+            vjust = -0.5,
+            color = survival_colors) +
+  scale_fill_manual(values = survival_colors) +
+  labs(title = "Survival Status Distribution of the Passengers") +
+  theme(
+      plot.title = element_text(hjust = 0.5),
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.line.x = element_blank(),
+      axis.title.x = element_blank()
+    )
+
+```
+
+
+#2
+Generate a histogram for the passengers’ age. 
+Furthermore, describe the passengers’ age using the following two boxplots: age per ticket class and age based on survival. 
+```{r}
+############## HISTOGRAM ####################
+
+ggplot(df, aes(x = age)) +
+  geom_histogram(binwidth = 5, fill = brewer.pal(4, "YlOrRd")[3], color = "white") +
+  labs(title = "Age Distribution of Passengers",
+       x = "Age",
+       y = "Count") +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+
+############## BOXPLOT ticket class ####################
+
+ggplot(df, aes(x = factor(pclass, 
+                          levels = c(1, 2, 3), 
+                          labels = c("1st", "2nd", "3rd")),
+               y = age,
+       fill = factor(pclass))) +
+  geom_boxplot() +
+  scale_fill_manual(values = ticket_colors) +
+  labs(title = "Passenger Age by Ticket Class",
+       x = "Ticket Class",
+       y = "Age") +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+############## BOXPLOT survival ####################
+
+ggplot(df, aes(x = factor(survived, 
+                          levels = c(0, 1),
+                          labels = c("Death", "Survived")),
+               y = age,
+               fill = factor(survived))) +
+  geom_boxplot() +
+  scale_fill_manual(values = survival_colors) +
+  labs(title = "Passanger Age by Survival Status",
+       x = "Survival Status",
+       y = "Age") +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+```
+
+
+#3
+Generate a histogram for the travel fare 
+and a table showing the number of people who did not pay 
+– you may want to check on Google why a handful of people was on board for free! ???
+
+```{r}
+############## HISTOGRAM ####################
+
+ggplot(df, aes(x = fare)) +
+  geom_histogram(binwidth = 10, fill = brewer.pal(4, "BuGn")[3], color = "white") +
+  labs(title = "Passengers Travelers Fare Distribution",
+       x = "Fare Price",
+       y = "Count") +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+############## TABLE ####################
+
+fare_zero <- df %>%
+  filter(fare == 0) %>%
+  group_by(pclass, sex, age, survived) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  mutate(
+    pclass = factor(pclass, levels = c(1, 2, 3), labels = c("1st", "2nd", "3rd")),
+    survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+  )
+
+
+fare_zero_total <- fare_zero %>%
+  summarise(pclass = "Total", sex = "", age = NA, survived = "", Count = sum(Count))
+fare_zero_combined <- bind_rows(fare_zero, fare_zero_total)
+
+
+fare_zero_combined %>%
+  kable(col.names = c("Ticket Class", "Sex", "Age", "Survival", "Number of Passengers"),
+        caption = "Passengers Who Paid £0 Fare, by Class, Sex, Age, and Survival (with Total)") %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE) %>% 
+  fare_zero_table <- df %>%
+  filter(fare == 0) %>%
+  group_by(pclass, sex, age, survived) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  mutate(
+    pclass = factor(pclass, levels = c(1, 2, 3), labels = c("1st", "2nd", "3rd")),
+    survived = factor(survived, levels = c(0, 1), labels = c("Died", "Survived"))
+  )
+
+# Step 2: Add total row
+fare_zero_total <- fare_zero_table %>%
+  summarise(
+    pclass = "Total",
+    sex = "",
+    age = NA,
+    survived = "",
+    Count = sum(Count)
+  )
+
+# Step 3: Bind rows together
+fare_zero_combined <- bind_rows(fare_zero_table, fare_zero_total)
+
+# Step 4: Display with kable
+fare_zero_combined %>%
+  kable(col.names = c("Ticket Class", "Sex", "Age", "Survival", "Number of Passengers"),
+        caption = "Passengers Who Paid £0 Fare, by Class, Sex, Age, and Survival (with Total)") %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE) %>% 
+  row_spec(0, bold = TRUE, background = brewer.pal(4, "BuGn")[3]) %>% 
+  row_spec(nrow(fare_zero_combined), bold = TRUE, background = "#f2f2f2")  
+
+
+```
+
+
+#4
+A chart of your choice to describe the family size per ticket class
+
+```{r}
+############## violin ####################
+
+# parch -> parents/children
+# sibsp -> siblings/spouse
+# +1 because of the passenger
+
+df <- df %>% 
+  mutate(family_size = sibsp + parch + 1)
+
+
+
+ggplot(df, aes(x = factor(pclass, 
+                          levels = c(1, 2, 3), 
+                          labels = c("1st", "2nd", "3rd")),
+               y = family_size,
+       fill = factor(pclass))) +
+  geom_violin(trim = FALSE) +
+  scale_fill_brewer(palette = "Pastel2") +
+  labs(
+    title = "Family Size per Ticket Class",
+    x = "Ticket Class",
+    y = "Family Size"
+  ) +
+  theme(
+      legend.position = "none",
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill = "white"),
+      axis.line = element_line(color = "black")
+    )
+
+
+```
+
+#5
+A series of stacked bar charts to show the how survival differs for different gender and ticket class
+
+
+
